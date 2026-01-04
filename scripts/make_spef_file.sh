@@ -15,6 +15,23 @@ if test "$#" -eq 0 ; then
     exit 0
 fi
 
+if [ -z "${PDK}" ]; then
+  echo "\$PDK is not set!"
+  exit 1
+fi
+
+if [ -z "${PDK_ROOT}" ]; then
+  echo "\$PDK_ROOT is not set!"
+  exit 1
+fi
+
+def_file_name=$1
+
+if [ -z "${def_file_name}" ]; then
+  echo "No def_file_name specified as argument!"
+  exit 1
+fi
+
 # Default extraction style is nominal
 extstyle="'ngspice()'"
 corner="nominal"
@@ -30,30 +47,29 @@ if test "$#" -eq 2 ; then
     fi
 fi
 
-#
-# These values can be overridden from the environment
-#
-export PDK_ROOT=${PDK_ROOT:=/foss/pdk}
-export PDK=${PDK:=sky130A}
 export PDK_PATH=${PDK_ROOT}/${PDK}
 export EXT_DIR=${EXT_DIR:=./openrcx-magic}
+
+echo "\$PDK: $PDK"
+echo "\$PDK_ROOT: $PDK_ROOT"
+echo "\$EXT_DIR: $EXT_DIR"
+
 mkdir -p $EXT_DIR
 
-export MAGIC=/foss/tools/bin/magic
+# Absolute path to this script, e.g. /home/user/bin/foo.sh
+SCRIPT=$(readlink -f "$0")
+# Absolute path this script is in, thus /home/user/bin
+SCRIPTPATH=$(dirname "$SCRIPT")
+echo $SCRIPTPATH
 
+designname=`cat $def_file_name | grep ^DESIGN | cut -d' ' -f 2`
 
-#export TECH_LEF=${TECH_LEF:=$PDK_PATH/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__$CORNER.tlef}
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-designname=`cat $1 | grep ^DESIGN | cut -d' ' -f 2`
-
-echo "Extracting design $designname from $1 using magic, $corner corner"
-$MAGIC -dnull -noconsole -rcfile ${PDK_PATH}/libs.tech/magic/${PDK}.magicrc << EOF
+echo "Extracting design $designname from $def_file_name using magic, $corner corner"
+magic -dnull -noconsole -rcfile ${PDK_PATH}/libs.tech/magic/${PDK}.magicrc << EOF
 drc off
 crashbackups stop
 lef read ${TECH_LEF}
-def read $1
+def read $def_file_name
 extract style $extstyle
 extract do aliases
 extract do local
@@ -61,14 +77,12 @@ extract all
 quit -noprompt
 EOF
 
+echo "Extraction done."
 
-echo "eeeeeeeeeeeeeeeeeee $2"
-
-mv ${designname}.ext $EXT_DIR/${designname}.$PDK.$2.ext
-
+mv ${designname}.ext $EXT_DIR/${designname}.$PDK.$corner.ext
 
 echo "Converting design $designname to SPEF"
-${SCRIPT_DIR}/ext2spef.py ${EXT_DIR}/${designname}.${PDK}.$2.ext $EXT_DIR/${designname}.${PDK}.$2.spef
+${SCRIPTPATH}/ext2spef.py ${EXT_DIR}/${designname}.${PDK}.$corner.ext $EXT_DIR/${designname}.${PDK}.$corner.spef
 
 echo "Done!"
 exit 0

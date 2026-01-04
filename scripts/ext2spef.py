@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 #
 # ext2spef.py --- Special-purpose application that reads a .ext file
 # from a metal test layout for openrcx extracted by magic, and writes
