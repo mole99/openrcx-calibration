@@ -2,12 +2,12 @@
 #
 # make_spef_file.sh ---
 #
-#	Script to generate a .spef file from a pattern layout (in DEF format)
-#	for openRCX using magic
+#    Script to generate a .spef file from a pattern layout (in DEF format)
+#    for openRCX using magic
 #
 # Usage:
 #
-#	make_spef_file.sh <DEF_file> [<corner>]
+#    make_spef_file.sh <DEF_file> [<corner>]
 
 if test "$#" -eq 0 ; then
     echo "Usage: make_spef_file.sh <def_file_name> [<corner>]"
@@ -34,16 +34,16 @@ fi
 
 # Default extraction style is nominal
 extstyle="'ngspice()'"
-corner="nominal"
+corner="nom"
 
 if test "$#" -eq 2 ; then
     corner="$2"
     if test "$2" = "min" ; then
-	extstyle="ngspice\(lrlc\)"
-        corner="minimum"
+        extstyle="ngspice\(lrlc\)"
+        corner="min"
     elif test "$2" = "max" ; then
-	extstyle="ngspice\(hrhc\)"
-        corner="maximum"
+        extstyle="ngspice\(hrhc\)"
+        corner="max"
     fi
 fi
 

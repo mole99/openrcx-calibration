@@ -19,10 +19,17 @@ fi
 
 export SCRIPTS_DIR=$(pwd)/scripts
 export REF_EXTRACTOR=magic
-export TECH_LEF=$PDK_ROOT/$PDK/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__$CORNER.tlef
-export EXT_DIR=$(pwd)/openrcx-$REF_EXTRACTOR
+
+case "$PDK" in
+  sky130A*)  export TECH_LEF=$PDK_ROOT/$PDK/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__$CORNER.tlef ;;
+  gf180mcu*) export TECH_LEF=$PDK_ROOT/$PDK/libs.ref/gf180mcu_fd_sc_mcu7t5v0/techlef/gf180mcu_fd_sc_mcu7t5v0__$CORNER.tlef ;;
+  ihp-sg13*) export TECH_LEF=$PDK_ROOT/$PDK/libs.ref/sg13g2_stdcell/lef/sg13g2_tech.lef ;;
+  *)         echo "Unknown PDK: $PDK"; exit 1 ;;
+esac
+
+export EXT_DIR=$(pwd)/openrcx-$REF_EXTRACTOR/$PDK
 export REF_SPEF=$EXT_DIR/blk.$PDK.$CORNER.spef
-export EXT_RULES=$EXT_DIR/$PDK/rules.openrcx.$PDK.$CORNER.$REF_EXTRACTOR
+export EXT_RULES=$EXT_DIR/openrcx/rules.openrcx.$PDK.$CORNER.$REF_EXTRACTOR
 
 echo "\$PDK: $PDK"
 echo "\$PDK_ROOT: $PDK_ROOT"
@@ -33,7 +40,7 @@ echo "\$EXT_DIR: $EXT_DIR"
 echo "\$REF_SPEF: $REF_SPEF"
 echo "\$EXT_RULES: $EXT_RULES"
 
-mkdir -p $EXT_DIR/$PDK
+mkdir -p $EXT_DIR/openrcx
 
 # Generate patterns for calibration
 openroad $SCRIPTS_DIR/generate_patterns.tcl 
