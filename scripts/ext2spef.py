@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 #
 # ext2spef.py --- Special-purpose application that reads a .ext file
 # from a metal test layout for openrcx extracted by magic, and writes
@@ -67,7 +67,8 @@ def convert_file(in_file, out_file):
                     # This file will only have one entry pair in the area,
                     # perimeter sets, from which the L/W can be calculated
                     # and from that, the resistance of the line.
-                    for i in range(54, 7, -2):
+                    num_tokens = len(tokens)
+                    for i in range(num_tokens-1, 7, -2):
                         if tokens[i] != '0':
                             p = int(tokens[i])
                             a = int(tokens[i - 1])
